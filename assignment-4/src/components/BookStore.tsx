@@ -1,13 +1,14 @@
-import { useState, useEffect, useRef } from 'react'
-import Link from 'next/link'
-import Modal from '../../components/Modal'
-import { IBook, IBooks } from '../../interfaces/book'
-import { books, defaultForm, pageSize } from '../../constant'
-import { createUniqueId } from '../../utils'
-import Header from '../../components/Header'
-import Input from '../../components/Input'
+'use client'
 
-const HomePage = () => {
+import { Input, Modal } from 'src/components'
+import { books, defaultForm, pageSize } from 'src/constant'
+import { IBook, IBooks } from 'src/interfaces'
+import Link from 'next/link'
+import { useEffect, useRef, useState } from 'react'
+import { createUniqueId } from 'src/utils'
+import Button from './Button'
+
+const BookStore = () => {
   const [modalCreate, setModalCreate] = useState(false)
   const [modalDelete, setModalDelete] = useState({
     open: false,
@@ -91,26 +92,10 @@ const HomePage = () => {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 w-sreen h-screen text-gray-900 dark:text-gray-300 p-5">
-      {/* <div className="flex flex-row justify-between items-center p-10 border">
-        <h1>Bookstore</h1>
-        <div className="flex flex-row items-center gap-2">
-          <ThemeSwitcher />
-          <Image
-            className="avatar rounded-full"
-            src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
-            alt="user avatar"
-            width={40}
-            height={40}
-          />
-          <div className="profile-name">John Doe</div>
-        </div>
-      </div> */}
-      {Header}
-      <div className="search">
-        <input
-          type="text"
-          className="search-input"
+    <div className="p-5">
+      <div className="flex items-center py-5 gap-5">
+        <Input
+          type="search"
           placeholder="Enter title to search books (case insensitive)"
           value={search}
           onChange={(e) => {
@@ -118,55 +103,67 @@ const HomePage = () => {
             setSearch(e.target.value)
           }}
         />
-        <button className="dwarf-button" onClick={handleOpenModalCreate}>
+        <Button className="flex-shrink-0 m-0" onClick={handleOpenModalCreate}>
           Add Book
-        </button>
+        </Button>
       </div>
-      <table className="table">
-        <thead>
+      <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
           <tr>
-            <th>Title</th>
-            <th>Author</th>
-            <th>Topic</th>
-            <th>Action</th>
+            <th scope="col" className="px-6 py-3">
+              Title
+            </th>
+            <th scope="col" className="px-6 py-3">
+              Author
+            </th>
+            <th scope="col" className="px-6 py-3">
+              Topic
+            </th>
+            <th scope="col" className="px-6 py-3">
+              Action
+            </th>
           </tr>
         </thead>
         <tbody>
           {dataRender.map((data: IBook, index) => {
             return (
-              <tr key={index}>
-                <td>{data.title}</td>
-                <td>{data.author}</td>
-                <td>{data.topic}</td>
-                <td>
-                  <button
-                    className="dwarf-button"
+              <tr
+                key={index}
+                className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
+              >
+                <td className="px-6 py-4">{data.title}</td>
+                <td className="px-6 py-4">{data.author}</td>
+                <td className="px-6 py-4">{data.topic}</td>
+                <td className="px-6 py-4 gap-2 flex text-pink-700 underline">
+                  <Button
+                    color="none"
                     onClick={() => handleOpenModalDelete(data.title, data.id)}
                   >
                     Delete
-                  </button>
-                  <button className="dwarf-button">
-                    <Link href={`/${data.id}`}>View</Link>
-                  </button>
+                  </Button>
+                  |
+                  <Button color="none">
+                    <Link href={`/book/${data.id}`}>View</Link>
+                  </Button>
                 </td>
               </tr>
             )
           })}
         </tbody>
       </table>
-      <div className="paging">
+      <div className="flex justify-end gap-2 p-5">
         {Array(totalPage)
           .fill(0)
           .map((_, idx) => {
             const page = idx + 1
             return (
-              <button
+              <Button
                 key={page}
-                className={`page ${page === currentPage ? 'active-page' : ''}`}
+                color={page === currentPage ? 'primary' : 'secondary'}
                 onClick={() => setCurrentPage(page)}
               >
                 {page}
-              </button>
+              </Button>
             )
           })}
       </div>
@@ -175,7 +172,7 @@ const HomePage = () => {
         title="Create Books"
         onClose={onCloseModalCreate}
       >
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-2">
           <p>Title:</p>
           <Input
             type="text"
@@ -195,6 +192,7 @@ const HomePage = () => {
           />
           <p>Topic:</p>
           <select
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             id="modalTopic"
             onChange={(e) => {
               formData.current = { ...formData.current, topic: e.target.value }
@@ -204,7 +202,9 @@ const HomePage = () => {
             <option value="Database">Database</option>
             <option value="DevOps">DevOps</option>
           </select>
-          <button type="submit">Create</button>
+          <Button color="primary" className="mt-5">
+            Create
+          </Button>
         </form>
       </Modal>
       <Modal
@@ -212,21 +212,18 @@ const HomePage = () => {
         title="Delete book"
         onClose={onCloseModalDelete}
       >
-        <div>
-          <h1>{`Do you want to delete ${modalDelete.title}`}</h1>
-          <button className="dwarf-button" onClick={onCloseModalDelete}>
+        <h1 className="self-center">{`Do you want to delete ${modalDelete.title}`}</h1>
+        <div className="flex gap-5 self-center p-2">
+          <Button color="none" onClick={onCloseModalDelete}>
             Cancel
-          </button>
-          <button
-            className="normal-button"
-            onClick={() => onDelete(modalDelete.id)}
-          >
+          </Button>
+          <Button color="primary" onClick={() => onDelete(modalDelete.id)}>
             Delete
-          </button>
+          </Button>
         </div>
       </Modal>
     </div>
   )
 }
 
-export default HomePage
+export default BookStore

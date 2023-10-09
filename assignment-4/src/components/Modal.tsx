@@ -1,6 +1,15 @@
+'use client'
+
 import React, { useEffect, useState } from 'react'
 
-const Modal = (props) => {
+interface Props {
+  title: string
+  children: React.ReactNode
+  open: boolean
+  onClose: () => void
+}
+
+const Modal: React.FC<Props> = (props) => {
   const { title = '', children, open = false, onClose } = props
 
   const [openState, setOpenState] = useState(open)
@@ -21,15 +30,15 @@ const Modal = (props) => {
 
   return (
     openState && (
-      <div className="absolute w-full h-full top-0 flex justify-center">
-        <div className="flex self-center w-4/12 h-fit flex-col shadow-md rounded-lg p-4 bg-white dark:bg-gray-800">
-          <div className="flex justify-between">
+      <div className="fixed w-full h-full top-0 flex justify-center">
+        <div className="flex self-center w-4/12 h-fit flex-col p-4 bg-white rounded-lg shadow dark:bg-gray-700">
+          <div className="flex justify-between items-center">
             <h1>{title}</h1>
             <button className="close" onClick={onCloseModal}>
               &times;
             </button>
           </div>
-          <div className="flex flex-col w-full">{children}</div>
+          <div className="flex flex-col w-full p-2">{children}</div>
         </div>
       </div>
     )
