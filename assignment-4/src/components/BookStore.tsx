@@ -18,17 +18,16 @@ const BookStore = () => {
   const [search, setSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [data, setData] = useState<IBooks>([])
-  const [dataRender, setDataRender] = useState<IBooks>([])
 
   const formData = useRef(defaultForm)
 
-  const dataFilter = search
-    ? data.filter((book: IBook) =>
-        String(book.title).toLowerCase().startsWith(search.toLowerCase()),
-      )
-    : data
-
+  const dataFilter = data.filter((book: IBook) =>
+    String(book.title).toLowerCase().startsWith(search.toLowerCase()),
+  )
   const totalPage = Math.ceil((dataFilter?.length || 0) / pageSize)
+  const startIndex = (currentPage - 1) * pageSize
+  const endIndex = startIndex + pageSize
+  const dataRender = dataFilter.slice(startIndex, endIndex)
 
   useEffect(() => {
     const lsBook = JSON.parse(localStorage.getItem('books') || '{}')
@@ -38,18 +37,6 @@ const BookStore = () => {
       localStorage.setItem('books', JSON.stringify(books))
     }
   }, [])
-
-  useEffect(() => {
-    const dataFilter = search
-      ? data.filter((book: IBook) =>
-          String(book.title).toLowerCase().startsWith(search.toLowerCase()),
-        )
-      : data
-    const startIndex = (currentPage - 1) * pageSize
-    const endIndex = startIndex + pageSize
-    const dt = dataFilter.slice(startIndex, endIndex)
-    setDataRender(dt)
-  }, [currentPage, data, search])
 
   const handleOpenModalCreate = () => {
     setModalCreate(true)
@@ -202,7 +189,7 @@ const BookStore = () => {
             <option value="Database">Database</option>
             <option value="DevOps">DevOps</option>
           </select>
-          <Button color="primary" className="mt-5">
+          <Button type="submit" color="primary" className="mt-5">
             Create
           </Button>
         </form>

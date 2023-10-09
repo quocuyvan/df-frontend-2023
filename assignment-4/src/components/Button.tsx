@@ -3,7 +3,7 @@ import { ButtonHTMLAttributes } from 'react'
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {}
 
 const Button: React.FC<Props> = (props): JSX.Element => {
-  const { children, color = 'primary', className = '' } = props
+  const { children, color = 'primary', className = '', type = 'button' } = props
   const colorMap = new Map([
     [
       'primary',
@@ -16,8 +16,8 @@ const Button: React.FC<Props> = (props): JSX.Element => {
   ])
   return (
     <button
-      type="button"
       {...props}
+      type={type}
       className={`${colorMap.get(color) || ''} ${className}`}
     >
       {children}
