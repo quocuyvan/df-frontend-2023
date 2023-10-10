@@ -1,12 +1,11 @@
 'use client'
 
-import { Input, Modal } from 'src/components'
-import { books, defaultForm, pageSize } from 'src/constant'
-import { IBook, IBooks } from 'src/interfaces'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
+import { Button, Input, Modal, Paging } from 'src/components'
+import { books, defaultForm, pageSize } from 'src/constant'
+import { IBook, IBooks } from 'src/interfaces'
 import { createUniqueId } from 'src/utils'
-import Button from './Button'
 
 const BookStore = () => {
   const [modalCreate, setModalCreate] = useState(false)
@@ -24,7 +23,6 @@ const BookStore = () => {
   const dataFilter = data.filter((book: IBook) =>
     String(book.title).toLowerCase().startsWith(search.toLowerCase()),
   )
-  const totalPage = Math.ceil((dataFilter?.length || 0) / pageSize)
   const startIndex = (currentPage - 1) * pageSize
   const endIndex = startIndex + pageSize
   const dataRender = dataFilter.slice(startIndex, endIndex)
@@ -94,66 +92,57 @@ const BookStore = () => {
           Add Book
         </Button>
       </div>
-      <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-          <tr>
-            <th scope="col" className="px-6 py-3">
-              Title
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Author
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Topic
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Action
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {dataRender.map((data: IBook, index) => {
-            return (
-              <tr
-                key={index}
-                className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
-              >
-                <td className="px-6 py-4">{data.title}</td>
-                <td className="px-6 py-4">{data.author}</td>
-                <td className="px-6 py-4">{data.topic}</td>
-                <td className="px-6 py-4 gap-2 flex text-pink-700 underline">
-                  <Button
-                    color="none"
-                    onClick={() => handleOpenModalDelete(data.title, data.id)}
-                  >
-                    Delete
-                  </Button>
-                  |
-                  <Button color="none">
-                    <Link href={`/book/${data.id}`}>View</Link>
-                  </Button>
-                </td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-      <div className="flex justify-end gap-2 p-5">
-        {Array(totalPage)
-          .fill(0)
-          .map((_, idx) => {
-            const page = idx + 1
-            return (
-              <Button
-                key={page}
-                color={page === currentPage ? 'primary' : 'secondary'}
-                onClick={() => setCurrentPage(page)}
-              >
-                {page}
-              </Button>
-            )
-          })}
+      <div className="overflow-auto">
+        <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr>
+              <th scope="col" className="px-6 py-3">
+                Title
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Author
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Topic
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Action
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {dataRender.map((data: IBook, index) => {
+              return (
+                <tr
+                  key={index}
+                  className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
+                >
+                  <td className="px-6 py-4">{data.title}</td>
+                  <td className="px-6 py-4">{data.author}</td>
+                  <td className="px-6 py-4">{data.topic}</td>
+                  <td className="px-6 py-4 gap-2 flex text-pink-700 underline">
+                    <Button
+                      color="none"
+                      onClick={() => handleOpenModalDelete(data.title, data.id)}
+                    >
+                      Delete
+                    </Button>
+                    |
+                    <Button color="none">
+                      <Link href={`/book/${data.id}`}>View</Link>
+                    </Button>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
       </div>
+      <Paging
+        currentPage={currentPage}
+        data={data}
+        onChangePage={(page) => setCurrentPage(page)}
+      />
       <Modal
         open={modalCreate}
         title="Create Books"
