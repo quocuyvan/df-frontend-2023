@@ -60,7 +60,8 @@ export const books = [
 export const pageSize = 5
 
 export const defaultForm = {
+  id: '',
   title: '',
   author: '',
-  topic: 'Programing',
+  topic: 'Programming',
 }

@@ -5,10 +5,11 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Button, Input, Modal, Paging } from 'src/components'
 import { books, defaultForm, pageSize } from 'src/constant'
 import { IBook, IBooks } from 'src/interfaces'
-import { createUniqueId } from 'src/utils'
+import { createUniqueId, validateBookForm } from 'src/utils'
 
 const BookStore = () => {
   const [modalCreate, setModalCreate] = useState(false)
+  const [modalEdit, setModalEdit] = useState(false)
   const [modalDelete, setModalDelete] = useState({
     open: false,
     title: '',
@@ -17,8 +18,9 @@ const BookStore = () => {
   const [search, setSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [data, setData] = useState<IBooks>([])
+  const [error, setError] = useState({ title: '', author: '', topic: '' })
 
-  const formData = useRef(defaultForm)
+  const formData = useRef({ ...defaultForm })
 
   const dataFilter = data.filter((book: IBook) =>
     String(book.title).toLowerCase().startsWith(search.toLowerCase()),
@@ -36,16 +38,35 @@ const BookStore = () => {
     }
   }, [])
 
+  const resetForm = () => {
+    formData.current = { ...defaultForm }
+    setError({ title: '', author: '', topic: '' })
+  }
+
   const handleOpenModalCreate = () => {
     setModalCreate(true)
   }
 
-  const handleOpenModalDelete = (title, id) => {
-    setModalDelete({ open: true, title, id })
+  const handleOpenModalEdit = (data) => {
+    formData.current.id = data?.id
+    formData.current.title = data?.title
+    formData.current.author = data?.author
+    formData.current.topic = data?.topic
+    setModalEdit(true)
+  }
+
+  const handleOpenModalDelete = (data: IBook) => {
+    setModalDelete({ open: true, title: data?.title, id: data?.id })
   }
 
   const onCloseModalCreate = () => {
     setModalCreate(false)
+    resetForm()
+  }
+
+  const onCloseModalEdit = () => {
+    setModalEdit(false)
+    resetForm()
   }
 
   const onCloseModalDelete = () => {
@@ -54,17 +75,47 @@ const BookStore = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault()
+
+    const { id, title, author, topic } = formData.current
+
+    // validate
+    const validateErrors = validateBookForm(title, author, topic)
+    setError(validateErrors)
+    if (
+      validateErrors?.title ||
+      validateErrors?.author ||
+      validateErrors?.topic
+    ) {
+      return
+    }
+
     const lsBooks: IBooks = [...data]
-    lsBooks.push({
-      title: formData.current.title,
-      author: formData.current.author,
-      topic: formData.current.topic,
-      id: createUniqueId(),
-    })
+
+    if (modalEdit) {
+      for (let i = 0; i < lsBooks.length; i++) {
+        if (lsBooks[i].id === id) {
+          lsBooks[i] = {
+            ...lsBooks[i],
+            ...{
+              title,
+              author,
+              topic,
+            },
+          }
+          break
+        }
+      }
+    } else {
+      lsBooks.push({
+        title: formData.current.title,
+        author: formData.current.author,
+        topic: formData.current.topic,
+        id: createUniqueId(),
+      })
+    }
     setData(lsBooks)
     localStorage.setItem('books', JSON.stringify(lsBooks))
-    onCloseModalCreate()
-    formData.current = defaultForm
+    return modalEdit ? onCloseModalEdit() : onCloseModalCreate()
   }
 
   const onDelete = (id) => {
@@ -123,7 +174,14 @@ const BookStore = () => {
                   <td className="px-6 py-4 gap-2 flex text-pink-700 underline">
                     <Button
                       color="none"
-                      onClick={() => handleOpenModalDelete(data.title, data.id)}
+                      onClick={() => handleOpenModalEdit(data)}
+                    >
+                      Edit
+                    </Button>
+                    |
+                    <Button
+                      color="none"
+                      onClick={() => handleOpenModalDelete(data)}
                     >
                       Delete
                     </Button>
@@ -143,25 +201,31 @@ const BookStore = () => {
         data={data}
         onChangePage={(page) => setCurrentPage(page)}
       />
+
+      {/* Modal Create|Edit */}
       <Modal
-        open={modalCreate}
-        title="Create Books"
-        onClose={onCloseModalCreate}
+        open={modalCreate || modalEdit}
+        title={modalCreate ? 'Create Books' : 'Edit Books'}
+        onClose={modalCreate ? onCloseModalCreate : onCloseModalEdit}
       >
         <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-          <p>Title:</p>
           <Input
+            label="Title:"
             type="text"
             placeholder="Enter title..."
+            defaultValue={formData.current.title}
+            error={error.title}
             onChange={(e) => {
               formData.current = { ...formData.current, title: e.target.value }
             }}
           />
-          <p>Author:</p>
           <Input
+            label="Author:"
             type="text"
             id="modalAuthor"
             placeholder="Enter author..."
+            defaultValue={formData.current.author}
+            error={error.author}
             onChange={(e) => {
               formData.current = { ...formData.current, author: e.target.value }
             }}
@@ -170,6 +234,7 @@ const BookStore = () => {
           <select
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             id="modalTopic"
+            defaultValue={formData.current.topic}
             onChange={(e) => {
               formData.current = { ...formData.current, topic: e.target.value }
             }}
@@ -179,10 +244,12 @@ const BookStore = () => {
             <option value="DevOps">DevOps</option>
           </select>
           <Button type="submit" color="primary" className="mt-5">
-            Create
+            {modalCreate ? 'Create' : 'Edit'}
           </Button>
         </form>
       </Modal>
+
+      {/* Modal Delete */}
       <Modal
         open={modalDelete.open}
         title="Delete book"

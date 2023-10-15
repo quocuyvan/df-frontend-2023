@@ -62,5 +62,5 @@ export const pageSize = 5
 export const defaultForm = {
   title: '',
   author: '',
-  topic: 'Programing',
+  topic: 'Programming',
 }

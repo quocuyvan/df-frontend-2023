@@ -2,7 +2,8 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { Modal } from 'src/components'
+import NotFound from 'src/app/not-found'
+import { Layout, Modal } from 'src/components'
 import Button from 'src/components/Button'
 
 export default function Page({ params }: { params: { id: string } }) {
@@ -22,12 +23,13 @@ export default function Page({ params }: { params: { id: string } }) {
   const onDelete = () => {
     const newBooks = lsBook.filter((lsBook) => lsBook['id'] !== bookId)
     localStorage.setItem('books', JSON.stringify(newBooks))
-    // onCloseModalDelete()
     router.back()
   }
 
-  return (
-    <>
+  return !currentBook ? (
+    <NotFound />
+  ) : (
+    <Layout>
       <div className="p-5">
         <Button
           color="none"
@@ -38,13 +40,13 @@ export default function Page({ params }: { params: { id: string } }) {
         </Button>
         <div className="flex flex-col gap-2 py-4">
           <p>
-            <strong>{currentBook.title}</strong>
+            <strong>{currentBook?.title}</strong>
           </p>
           <p>
-            <strong>Author:</strong> {currentBook.author}
+            <strong>Author:</strong> {currentBook?.author}
           </p>
           <p>
-            <strong>Topic:</strong> {currentBook.topic}
+            <strong>Topic:</strong> {currentBook?.topic}
           </p>
         </div>
         <Button
@@ -56,7 +58,7 @@ export default function Page({ params }: { params: { id: string } }) {
         </Button>
       </div>
       <Modal open={openModal} title="Delete book" onClose={onCloseModalDelete}>
-        <h1 className="self-center">{`Do you want to delete ${currentBook.title}`}</h1>
+        <h1 className="self-center">{`Do you want to delete ${currentBook?.title}`}</h1>
         <div className="flex gap-5 self-center p-2">
           <Button color="none" onClick={onCloseModalDelete}>
             Cancel
@@ -66,6 +68,6 @@ export default function Page({ params }: { params: { id: string } }) {
           </Button>
         </div>
       </Modal>
-    </>
+    </Layout>
   )
 }
