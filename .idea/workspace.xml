@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="820c637d-1bdd-44e6-b59b-a15bf6bd526c" name="Changes" comment="chore: wip assignment-5">
+      <change afterPath="$PROJECT_DIR$/assignment-5/.eslintrc.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/.husky/pre-commit" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/.prettierrc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/lint-staged.config.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/next.config.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/package.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/pnpm-lock.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/postcss.config.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/public/logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/public/next.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/public/vercel.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/src/app/book/[id]/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/src/app/constant.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/src/app/favicon.ico" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/src/app/globals.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/src/app/layout.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/src/app/not-found.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/src/app/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/src/assets/logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/src/components/Avatar.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/src/components/BookStore.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/src/components/Button.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/src/components/Header.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/src/components/Input.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/src/components/Layout.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/src/components/Modal.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/src/components/Paging.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/src/components/ThemeProvider.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/src/components/ThemeSwitcher.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/src/components/index.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/src/constant.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/src/context/ThemeContext.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/src/interfaces/book.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/src/interfaces/index.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/src/utils/createUniqueId.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/src/utils/index.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/tailwind.config.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment-5/tsconfig.json" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings">
+    <execution />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2Wmbqoo9CRrP69iv1DhFpVz7G4x" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+    <property name="ts.external.directory.path" value="D:\Work\Other\df-frontend-2023\assignment-4\node_modules\typescript\lib" />
+    <property name="vue.rearranger.settings.migration" value="true" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="820c637d-1bdd-44e6-b59b-a15bf6bd526c" name="Changes" comment="" />
+      <created>1697340898285</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1697340898285</updated>
+      <workItem from="1697340900796" duration="417000" />
+      <workItem from="1697341342043" duration="175000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="chore: wip assignment-5" />
+    <option name="LAST_COMMIT_MESSAGE" value="chore: wip assignment-5" />
+  </component>
+</project>
