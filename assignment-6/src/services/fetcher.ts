@@ -1,7 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios'
 import { getSession } from './auth'
 
-const fetcher = async <T>(url: string): Promise<T> => {
+const fetcher = async <T>(
+  url: string,
+  method: string = 'GET',
+  data?: any,
+): Promise<T> => {
   const accessToken: string | null = getSession()
 
   const config = {
@@ -10,7 +15,13 @@ const fetcher = async <T>(url: string): Promise<T> => {
     },
   }
 
-  const response = await axios.get(url, config)
+  const response = await axios.request({
+    url,
+    method,
+    data,
+    ...config,
+  })
+
   return response.data.data
 }
 
