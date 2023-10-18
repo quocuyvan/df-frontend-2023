@@ -1,8 +1,10 @@
+import { ITopic } from './topic'
+
 export interface IBook {
-  id: string
-  title: string
+  id: number
+  name: string
   author: string
-  topic: string
+  topic: ITopic
 }
 
 export interface IBooks extends Array<IBook> {}

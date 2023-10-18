@@ -20,17 +20,15 @@ export default function Login() {
     // validate
     const validateErrors = validateLoginForm(email, password)
     setErrorState(validateErrors)
-    if (validateErrors?.email || validateErrors?.password) {
-      // return
-    }
+    if (!validateErrors?.email && !validateErrors?.password) {
+      // handle login
+      const success: boolean = await login(email, password)
 
-    // handle login
-    const success: boolean = await login(email, password)
-
-    if (success) {
-      router.push('/')
-    } else {
-      // Handle login error
+      if (success) {
+        router.push('/')
+      } else {
+        // Handle login error
+      }
     }
   }
 

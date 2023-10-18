@@ -1,3 +1,5 @@
+'use client'
+
 import { useRouter } from 'next/navigation'
 import { API_URL } from 'src/constant'
 import { IUser } from 'src/interfaces'
@@ -12,15 +14,7 @@ interface Props {}
 const Header: React.FC<Props> = (): JSX.Element => {
   const router = useRouter()
 
-  const { data, error } = useSWR<IUser>(`${API_URL}/me`, fetcher)
-
-  if (error) {
-    return <div>Error loading data</div>
-  }
-
-  if (!data) {
-    return <div>Loading...</div>
-  }
+  const { data } = useSWR<IUser>(`${API_URL}/me`, fetcher)
 
   return (
     <div className="flex flex-row justify-between items-center p-5 border">
@@ -29,7 +23,7 @@ const Header: React.FC<Props> = (): JSX.Element => {
         <ThemeSwitcher />
         <Avatar
           src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
-          name={data?.fullName}
+          name={data?.fullName || ''}
         />
         <Button onClick={() => router.push('/logout')}>Logout</Button>
       </div>

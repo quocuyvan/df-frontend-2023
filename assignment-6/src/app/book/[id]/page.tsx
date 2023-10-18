@@ -5,25 +5,36 @@ import { useState } from 'react'
 import NotFound from 'src/app/not-found'
 import { Layout, Modal } from 'src/components'
 import Button from 'src/components/Button'
+import { API_URL } from 'src/constant'
+import { IBooks } from 'src/interfaces'
+import fetcher from 'src/services/fetcher'
+import useSWR from 'swr'
 
 export default function Page({ params }: { params: { id: string } }) {
   const router = useRouter()
+
+  const { data: books } = useSWR<IBooks>(`${API_URL}/books`, fetcher)
 
   const [openModal, setOpenModal] = useState(false)
 
   const { id: bookId } = params
 
-  const lsBook = JSON.parse(localStorage.getItem('books') || '{}')
-  const currentBook = lsBook.find((book) => book.id === bookId)
+  const currentBook = books?.find((book) => {
+    return book.id === parseFloat(bookId)
+  })
 
   const onCloseModalDelete = () => {
     setOpenModal(false)
   }
 
-  const onDelete = () => {
-    const newBooks = lsBook.filter((lsBook) => lsBook['id'] !== bookId)
-    localStorage.setItem('books', JSON.stringify(newBooks))
-    router.back()
+  const onDelete = async () => {
+    try {
+      // Make the POST request
+      await fetcher(`${API_URL}/books/${bookId}`, 'DELETE')
+      router.back()
+    } catch (error) {
+      // Handle the error
+    }
   }
 
   return !currentBook ? (
@@ -40,13 +51,13 @@ export default function Page({ params }: { params: { id: string } }) {
         </Button>
         <div className="flex flex-col gap-2 py-4">
           <p>
-            <strong>{currentBook?.title}</strong>
+            <strong>{currentBook?.name}</strong>
           </p>
           <p>
             <strong>Author:</strong> {currentBook?.author}
           </p>
           <p>
-            <strong>Topic:</strong> {currentBook?.topic}
+            <strong>Topic:</strong> {currentBook?.topic.name}
           </p>
         </div>
         <Button
@@ -58,7 +69,7 @@ export default function Page({ params }: { params: { id: string } }) {
         </Button>
       </div>
       <Modal open={openModal} title="Delete book" onClose={onCloseModalDelete}>
-        <h1 className="self-center">{`Do you want to delete ${currentBook?.title}`}</h1>
+        <h1 className="self-center">{`Do you want to delete ${currentBook?.name}`}</h1>
         <div className="flex gap-5 self-center p-2">
           <Button color="none" onClick={onCloseModalDelete}>
             Cancel

@@ -1,17 +1,19 @@
+import { ITopic } from 'src/interfaces'
+
 export const validateBookForm = (
   bookName: string,
   authorName: string,
-  bookTopic: string,
+  bookTopic?: ITopic,
 ) => {
   const errors = {
-    title: '',
+    name: '',
     author: '',
     topic: '',
   }
 
   // Book name validation
   if (bookName.trim().length < 5) {
-    errors.title = 'Book name must be at least 5 characters long.'
+    errors.name = 'Book name must be at least 5 characters long.'
   }
 
   // Author name validation
@@ -20,7 +22,7 @@ export const validateBookForm = (
   }
 
   // Book topic validation
-  if (!bookTopic) {
+  if (!bookTopic?.name) {
     errors.topic = 'Book topic is required.'
   }
 

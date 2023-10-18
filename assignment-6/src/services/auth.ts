@@ -1,5 +1,3 @@
-// session.ts
-
 import axios, { AxiosResponse } from 'axios'
 import { API_URL } from 'src/constant'
 
