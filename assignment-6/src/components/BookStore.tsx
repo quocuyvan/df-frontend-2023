@@ -79,7 +79,7 @@ const BookStore = () => {
   const handleSubmit = async (event) => {
     event.preventDefault()
 
-    const { name, author, topicId } = formData.current
+    const { id, name, author, topicId } = formData.current
     const newBook = { author, name, topicId }
 
     // validate
@@ -98,7 +98,11 @@ const BookStore = () => {
     }
     try {
       // Make the POST request
-      await fetcher(`${API_URL}/books`, 'POST', JSON.stringify(newBook))
+      await fetcher(
+        `${API_URL}/books${modalEdit ? `/${id}` : ''}`,
+        modalEdit ? 'PUT' : 'POST',
+        JSON.stringify(newBook),
+      )
       mutate()
     } catch (error) {
       // Handle the error
