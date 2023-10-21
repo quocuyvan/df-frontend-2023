@@ -2,11 +2,11 @@
 
 import React, { useEffect, useState } from 'react'
 import { pageSize } from 'src/constant'
-import { IBooks } from 'src/interfaces'
+import { Book } from '../_generated/model/book'
 import Button from './Button'
 
 interface Props {
-  data: IBooks
+  data: Book[]
   currentPage: number
   onChangePage: (number) => void
 }

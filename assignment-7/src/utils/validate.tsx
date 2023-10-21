@@ -1,9 +1,9 @@
-import { ITopic } from 'src/interfaces'
+import { Topic } from '../_generated/model/topic'
 
 export const validateBookForm = (
   bookName: string,
   authorName: string,
-  bookTopic?: ITopic,
+  bookTopic?: Topic,
 ) => {
   const errors = {
     name: '',

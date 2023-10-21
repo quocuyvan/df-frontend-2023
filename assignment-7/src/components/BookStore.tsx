@@ -3,15 +3,17 @@
 import Link from 'next/link'
 import React, { useEffect, useRef, useState } from 'react'
 import { Button, Input, Modal, Paging } from 'src/components'
-import { API_URL, defaultForm, pageSize } from 'src/constant'
-import { IBook, IBooks, ITopic, ITopics } from 'src/interfaces'
-import fetcher from 'src/services/fetcher'
+import { defaultForm, pageSize } from 'src/constant'
 import { validateBookForm } from 'src/utils'
-import useSWR from 'swr'
+import { Book } from '../_generated/model/book'
+import { Topic } from '../_generated/model/topic'
+import * as bookClient from '../_generated/book/book'
+import * as topicClient from '../_generated/topic/topic'
 
 const BookStore = () => {
-  const { data: books, mutate } = useSWR<IBooks>(`${API_URL}/books`, fetcher)
-  const { data: topics } = useSWR<ITopics>(`${API_URL}/topics`, fetcher)
+  const { data: books, mutate } = bookClient.useGetBooks()
+
+  const { data: topics } = topicClient.useGetTopics()
 
   const [modalCreate, setModalCreate] = useState(false)
   const [modalEdit, setModalEdit] = useState(false)
@@ -22,7 +24,7 @@ const BookStore = () => {
   })
   const [search, setSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const [dataState, setDataState] = useState<IBooks>(books || [])
+  const [dataState, setDataState] = useState<Book[]>(books?.data || [])
   const [errorState, setErrorState] = useState({
     name: '',
     author: '',
@@ -32,10 +34,10 @@ const BookStore = () => {
   const formData = useRef({ ...defaultForm })
 
   useEffect(() => {
-    setDataState(books || [])
+    setDataState(books?.data || [])
   }, [books])
 
-  const dataFilter = dataState.filter((book: IBook) =>
+  const dataFilter = dataState.filter((book: Book) =>
     String(book.name).toLowerCase().startsWith(search.toLowerCase()),
   )
   const startIndex = (currentPage - 1) * pageSize
@@ -59,7 +61,7 @@ const BookStore = () => {
     setModalEdit(true)
   }
 
-  const handleOpenModalDelete = (data: IBook) => {
+  const handleOpenModalDelete = (data: Book) => {
     setModalDelete({ open: true, name: data?.name, id: data?.id })
   }
 
@@ -76,9 +78,9 @@ const BookStore = () => {
   const onCloseModalDelete = () => {
     setModalDelete((prevState) => ({ ...prevState, open: false }))
   }
+
   const handleSubmit = async (event) => {
     event.preventDefault()
-
     const { id, name, author, topicId } = formData.current
     const newBook = { author, name, topicId }
 
@@ -86,7 +88,7 @@ const BookStore = () => {
     const validateErrors = validateBookForm(
       name,
       author,
-      topics?.find((topic) => topic.id === topicId),
+      topics?.data?.find((topic) => topic.id === topicId),
     )
     setErrorState(validateErrors)
     if (
@@ -98,11 +100,11 @@ const BookStore = () => {
     }
     try {
       // Make the POST request
-      await fetcher(
-        `${API_URL}/books${modalEdit ? `/${id}` : ''}`,
-        modalEdit ? 'PUT' : 'POST',
-        JSON.stringify(newBook),
-      )
+      if (modalEdit) {
+        await bookClient.updateBook(parseFloat(id), newBook)
+      } else {
+        await bookClient.createBook(newBook)
+      }
       mutate()
     } catch (error) {
       // Handle the error
@@ -113,11 +115,11 @@ const BookStore = () => {
 
   const onDelete = async (id) => {
     try {
-      // Make the POST request
-      await fetcher(`${API_URL}/books/${id}`, 'DELETE')
+      await bookClient.deleteBook(id)
       mutate()
+      // Handle success
     } catch (error) {
-      // Handle the error
+      // Handle error
     }
     onCloseModalDelete()
     setCurrentPage(1)
@@ -158,7 +160,7 @@ const BookStore = () => {
             </tr>
           </thead>
           <tbody>
-            {dataRender.map((data: IBook, index) => {
+            {dataRender.map((data: Book, index) => {
               return (
                 <tr
                   key={index}
@@ -166,7 +168,7 @@ const BookStore = () => {
                 >
                   <td className="px-6 py-4">{data.name}</td>
                   <td className="px-6 py-4">{data.author}</td>
-                  <td className="px-6 py-4">{data.topic.name}</td>
+                  <td className="px-6 py-4">{data.topic?.name}</td>
                   <td className="px-6 py-4 gap-2 flex text-pink-700 underline">
                     <Button
                       color="none"
@@ -238,7 +240,7 @@ const BookStore = () => {
               }
             }}
           >
-            {topics?.map((topic: ITopic, idx) => {
+            {topics?.data?.map((topic: Topic, idx) => {
               return (
                 <option key={idx} value={topic?.id}>
                   {topic?.name}

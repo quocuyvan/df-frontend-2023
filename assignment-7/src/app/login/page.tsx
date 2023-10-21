@@ -3,8 +3,8 @@
 import { useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
 import { Button, Input } from 'src/components'
-import { login } from 'src/services/auth'
 import { validateLoginForm } from 'src/utils'
+import * as authClient from '../../_generated/auth/auth'
 
 export default function Login() {
   const router = useRouter()
@@ -22,9 +22,11 @@ export default function Login() {
     setErrorState(validateErrors)
     if (!validateErrors?.email && !validateErrors?.password) {
       // handle login
-      const success: boolean = await login(email, password)
-
-      if (success) {
+      const resp = await authClient.login({ email, password })
+      const token = resp.data?.accessToken
+      if (token) {
+        // SET O DAY
+        setSession(token)
         router.push('/')
       } else {
         // Handle login error
@@ -59,4 +61,11 @@ export default function Login() {
       </form>
     </div>
   )
+}
+
+const setSession = (accessToken: string): void => {
+  // Check if localStorage is available
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('accessToken', accessToken)
+  }
 }
