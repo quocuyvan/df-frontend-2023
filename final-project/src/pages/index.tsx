@@ -1,12 +1,14 @@
 /* eslint-disable react/jsx-no-bind */
-import { useRef, useState, useEffect } from 'react'
-import { Chessboard } from 'react-chessboard'
-import { Chess } from 'chess.js'
 import { OpenAIMessage } from 'api'
+import { Chess } from 'chess.js'
+import { Button } from 'components/Button'
+import { useEffect, useRef, useState } from 'react'
+import { Chessboard } from 'react-chessboard'
 import { getChatCompletions } from '../api/chat/chat'
 
 export default function Home() {
   const [game, setGame] = useState(new Chess())
+  const [matchResult, setMatchResult] = useState('win')
 
   const msgs = useRef([] as OpenAIMessage[])
   const botPossibleMoves = useRef([] as string[])
@@ -26,7 +28,7 @@ export default function Home() {
     }
   }, [game, makeBOTMove])
 
-  function safeGameMutate(modify: (game: Chess) => void) {
+  const safeGameMutate = (modify: (game: Chess) => void) => {
     setGame((g) => {
       const update = new Chess(g.fen())
       modify(update)
@@ -70,7 +72,7 @@ export default function Home() {
     }
   }
 
-  function onDrop(source: string, target: string, piece: string) {
+  const onDrop = (source: string, target: string, piece: string) => {
     let move = {}
     recentMove.current = `${piece[1]}${source}-${target}` // from-to
     safeGameMutate((game) => {
@@ -90,9 +92,26 @@ export default function Home() {
     return true
   }
 
+  const handleRestartGame = () => {
+    // handle restart game
+    setMatchResult('')
+  }
+
   return (
     <div className="app">
-      <Chessboard position={game.fen()} onPieceDrop={onDrop} />
+      <div className="w-full min-h-screen flex-col flex justify-center items-center relative bg-white dark:bg-gray-700">
+        <div className="sm:w-3/4 md:w-1/2 lg:w-1/3">
+          {matchResult && (
+            <div className="flex flex-col items-center p-5 gap-2 text-gray-900 dark:text-white z-50 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow dark:bg-gray-700">
+              {`You ${matchResult}!`}
+              <Button appearance="primary" onClick={() => handleRestartGame()}>
+                Restart game
+              </Button>
+            </div>
+          )}
+          <Chessboard position={game.fen()} onPieceDrop={onDrop} />
+        </div>
+      </div>
     </div>
   )
 }
