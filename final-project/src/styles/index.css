@@ -3,3 +3,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+div[data-piece='bP'],
+div[data-piece='bB'],
+div[data-piece='bN'],
+div[data-piece='bR'],
+div[data-piece='bQ'],
+div[data-piece='bK'] {
+  pointer-events: none;
+}
