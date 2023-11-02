@@ -2,7 +2,7 @@
 /* eslint-disable no-restricted-globals */
 /* eslint-disable react/jsx-no-bind */
 import { OpenAIMessage } from 'api'
-import { Chess, Move } from 'chess.js'
+import { Chess, DEFAULT_POSITION, Move } from 'chess.js'
 import { Button } from 'components/Button'
 import { useMemo, useEffect, useRef, useState } from 'react'
 import { Chessboard } from 'react-chessboard'
@@ -25,6 +25,7 @@ export default function Home() {
   const game = useMemo(() => new Chess(), [])
   const [matchResult, setMatchResult] = useState('')
   const [playerTurn, setPlayerTurn] = useState(true)
+  const [isJustMakeMove, setIsJustMakeMove] = useState(false)
   const [readyToUndo, setReadyToUndo] = useState(false)
   const [readyToRedo, setReadyToRedo] = useState(false)
   const [gamePosition, setGamePosition] = useState(game.fen())
@@ -53,14 +54,14 @@ export default function Home() {
     }
 
     if (game.turn() === 'b') {
-      if (playerTurn) {
-        return
-      }
-      botPossibleMoves.current = game.moves()
-      if (game.isCheck()) {
-        recentMove.current = `${recentMove.current}+`
-      }
-      makeBOTMove()
+        if (playerTurn) {
+          return
+        }
+        botPossibleMoves.current = game.moves()
+        if (game.isCheck()) {
+          recentMove.current = `${recentMove.current}+`
+        }
+        makeBOTMove()
     }
   }, [game, playerTurn, makeBOTMove])
 
@@ -73,15 +74,13 @@ export default function Home() {
     )
       return
 
-    if (turnNumber.current === 1) {
+    if (msgs.current.length === 1) {
       msgs.current.push({
         role: 'user',
         content: `${turnNumber.current}. ${recentMove.current}`,
       })
     } else {
-      msgs.current[msgs.current.length - 1].content = `${
-        msgs.current[msgs.current.length - 1].content
-      }\n${turnNumber.current}. ${recentMove.current}`
+      msgs.current[msgs.current.length - 1].content = `${msgs.current[msgs.current.length - 1].content}\n${turnNumber.current}. ${recentMove.current}`
     }
 
     // Use the OpenAI API to get the best move
@@ -92,34 +91,36 @@ export default function Home() {
 
     if (openAIResponse && openAIResponse.choices) {
       const responseContent = openAIResponse.choices[0].message.content
-      if (responseContent !== '') {
-        try {
-          const botMoveString = extractValidChessMove(responseContent)
-          if (botMoveString === null) {
+        if (responseContent !== "") {
+          try {
+            const botMoveString = extractValidChessMove(responseContent)
+            if (botMoveString === null) { 
+              game.reset()
+              setPlayerTurn(true)
+              return
+            }
+            game.move(botMoveString)
+            setGamePosition(game.fen())
+          msgs.current[msgs.current.length - 1].content = `${msgs.current[msgs.current.length - 1].content} ${botMoveString}`
+          turnNumber.current = turnNumber.current + 1
+          } catch (error) {
             game.reset()
             setPlayerTurn(true)
             return
           }
-          const botMove = game.move(botMoveString)
-          undoStack.push(botMove)
-          setGamePosition(game.fen())
-          msgs.current[msgs.current.length - 1].content = `${
-            msgs.current[msgs.current.length - 1].content
-          } ${botMoveString}`
-          turnNumber.current = turnNumber.current + 1
-        } catch (error) {
-          game.reset()
-          setPlayerTurn(true)
-          return
         }
-      }
     } else {
       game.reset()
       setPlayerTurn(true)
       return
     }
+    if (undoStack.length > 1) {
+      undoStack.splice(-2)
+    }
     setPlayerTurn(true)
     setReadyToUndo(true)
+    setReadyToRedo(false)
+    setIsJustMakeMove(true)
   }
 
   const onDrop = (source: string, target: string, piece: string) => {
@@ -143,52 +144,56 @@ export default function Home() {
     }
 
     try {
-      const userMove = game.move({
+      game.move({
         from: source,
         to: target,
         promotion: piece[1].toLowerCase() ?? 'q',
       })
-      undoStack.push(userMove)
     } catch (error) {
       return false
     }
+
+    
 
     setGamePosition(game.fen())
     setPlayerTurn(false)
     return true
   }
 
-  const handleRestartGame = () => {
-    // handle restart game
-    undoStack = []
-    setMatchResult('')
-    game.reset()
-    setPlayerTurn(true)
-    location.reload()
-  }
-
   const handleUndo = () => {
-    if (readyToUndo) {
-      const blackMove = game.undo()
-      if (blackMove !== null) {
-        undoStack.push(blackMove)
-      }
-      const whiteMove = game.undo()
-      if (whiteMove !== null) {
-        undoStack.push(whiteMove)
-      }
-      console.log('blackMove by Undo:', blackMove)
-      console.log('whiteMove by Undo:', whiteMove)
-      setGamePosition(game.fen())
-      turnNumber.current = turnNumber.current - 1
-      const res = trimStringTillLastNewline(
-        msgs.current[msgs.current.length - 1].content,
-      )
-      console.log('After:', res)
-      msgs.current[msgs.current.length - 1].content = res
-      setReadyToRedo(true)
+    if (isJustMakeMove) {
+      const blackMove = game.undo();
+    if (blackMove !== null) {
+      undoStack.push(blackMove)
     }
-    console.log('undoStack by Undo:', undoStack)
+    const whiteMove = game.undo();
+    if (whiteMove !== null) {
+      undoStack.push(whiteMove)
+    }
+    setGamePosition(game.fen());
+    turnNumber.current = turnNumber.current-1
+    if (turnNumber.current === 0) { turnNumber.current = 1 }
+    msgs.current[msgs.current.length - 1].content = trimStringTillLastNewline(msgs.current[msgs.current.length - 1].content)
+    setReadyToRedo(true)
+    } else if (readyToUndo) {
+      const blackMove = game.undo();
+    if (blackMove !== null) {
+      undoStack.unshift(blackMove)
+    }
+    const whiteMove = game.undo();
+    if (whiteMove !== null) {
+      undoStack.unshift(whiteMove)
+    }
+    setGamePosition(game.fen());
+    turnNumber.current = turnNumber.current-1
+    if (turnNumber.current === 0) { turnNumber.current = 1 }
+    msgs.current[msgs.current.length - 1].content = trimStringTillLastNewline(msgs.current[msgs.current.length - 1].content)
+    setReadyToRedo(true)
+    }
+    setIsJustMakeMove(false)
+    if (game.fen() === DEFAULT_POSITION) {
+      setReadyToUndo(false)
+    }
   }
 
   const handleRedo = () => {
@@ -201,29 +206,27 @@ export default function Home() {
       if (whiteMove) {
         game.move(whiteMove)
       }
-      setGamePosition(game.fen())
-      turnNumber.current = turnNumber.current + 1
-      msgs.current[msgs.current.length - 1].content = `${
-        msgs.current[msgs.current.length - 1].content
-      }\n${turnNumber.current}. ${whiteMove?.san} ${blackMove?.san}`
-      if (undoStack.length === 0) {
-        setReadyToRedo(false)
+      if (blackMove || whiteMove) {
+        setGamePosition(game.fen());
+        turnNumber.current = turnNumber.current+1
+        msgs.current[msgs.current.length - 1].content = `${msgs.current[msgs.current.length - 1].content}\n${turnNumber.current}. ${whiteMove?.san} ${blackMove?.san}`
+        if (undoStack.length === 0) {
+          setReadyToRedo(false)
+        }
+        setReadyToUndo(true)
       }
     }
 
-    console.log('undoStack by Redo:', undoStack)
+    setIsJustMakeMove(false)
   }
 
   function trimStringTillLastNewline(input: string): string {
-    console.log('Before:', input)
-    const lastNewlineIndex = input.lastIndexOf('\n')
-    console.log('lastNewlineIndex:', lastNewlineIndex)
+    const lastNewlineIndex = input.lastIndexOf('\n');
 
     if (lastNewlineIndex !== -1) {
-      console.log('TRIMMED!')
-      return input.substring(0, lastNewlineIndex)
-    }
-    return input // If no newline found, return the original string
+        return input.substring(0, lastNewlineIndex);
+    } 
+        return ""; // If no newline found, return the empty string
   }
 
   function extractValidChessMove(input: string): string | null {
@@ -239,6 +242,18 @@ export default function Home() {
     return null // Return null if no valid move is found in the input
   }
 
+  const handleRestartGame = () => {
+    // handle restart game
+    undoStack = []
+    setMatchResult('')
+    game.reset()
+    setPlayerTurn(true)
+    setReadyToUndo(false)
+    setReadyToRedo(false)
+    undoStack = []
+    location.reload()
+  }
+  
   return (
     <div className="app">
       <div className="w-full min-h-screen flex-col flex justify-center items-center relative gap-5 bg-[url('/chessbg.png')] bg-cover">
